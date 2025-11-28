@@ -1,51 +1,87 @@
 #!/bin/bash
 
-# 1. Solicitar ruta
-printf "Introduce el nombre de la carpeta o la ruta completa (ej: /media/disco/fotos): "
-read -r input_dir
+# Función para obtener la ruta absoluta (compatible con Linux/Mac)
+get_abs_path() {
+    echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
 
-# 2. Configurar directorio de salida
-if [ -z "$input_dir" ]; then
-    # Opción por defecto
-    output_dir="./Archivos_Organizados"
-    is_absolute=0
-else
-    # Comprobar si es ruta absoluta (empieza por /)
-    if [[ "$input_dir" == /* ]]; then
-        output_dir="$input_dir"
-        is_absolute=1
-    else
-        output_dir="./$input_dir"
-        is_absolute=0
+clear
+echo "======================================================="
+echo "   ORGANIZADOR DE ARCHIVOS MASIVO (Modo Avanzado)    "
+echo "======================================================="
+echo ""
+
+# --- PASO 1: Solicitar y Validar ORIGEN ---
+while true; do
+    printf "📂 Ruta de la carpeta de ORIGEN (donde está el desorden): "
+    read -r source_input
+    
+    # Si está vacío, asumir directorio actual
+    if [ -z "$source_input" ]; then
+        source_input="."
     fi
+
+    if [ -d "$source_input" ]; then
+        # Convertir a ruta absoluta para evitar confusiones
+        abs_source=$(cd "$source_input" && pwd)
+        echo "   -> Origen validado: $abs_source"
+        break
+    else
+        echo "   ❌ Error: La carpeta no existe. Inténtalo de nuevo."
+    fi
+done
+
+echo ""
+
+# --- PASO 2: Solicitar y Crear DESTINO ---
+printf "💾 Ruta de la carpeta de DESTINO (donde guardar lo ordenado): "
+read -r dest_input
+
+# Si está vacío, crear por defecto en el directorio actual
+if [ -z "$dest_input" ]; then
+    dest_input="./Archivos_Organizados"
 fi
 
-echo "---------------------------------------------------"
-echo "Destino seleccionado: $output_dir"
-echo "---------------------------------------------------"
+# Crear directorio de destino (si no existe) para poder resolver su ruta absoluta
+mkdir -p "$dest_input"
+abs_dest=$(cd "$dest_input" && pwd)
+echo "   -> Destino configurado: $abs_dest"
+echo ""
+
+# --- PASO 3: Configurar lógica de búsqueda (Protección anti-bucle) ---
+# Comprobamos si el destino está DENTRO del origen para excluirlo
+# Si abs_dest empieza por abs_source...
+if [[ "$abs_dest" == "$abs_source"* ]]; then
+    echo "⚠️  Nota: El destino está dentro del origen. Se activará la exclusión para evitar bucles."
+    # Usamos -path con la ruta absoluta del destino para excluirla
+    find_cmd="find \"$abs_source\" -path \"$abs_dest\" -prune -o -type f -print0"
+    # Para el conteo, misma lógica
+    count_cmd="find \"$abs_source\" -path \"$abs_dest\" -prune -o -type f | wc -l"
+else
+    # Son rutas separadas (ej: Origen USB -> Destino Disco Duro)
+    find_cmd="find \"$abs_source\" -type f -print0"
+    count_cmd="find \"$abs_source\" -type f | wc -l"
+fi
+
+# --- PASO 4: Ejecución ---
+echo "-------------------------------------------------------"
+echo "Calculando total de archivos..."
+# Usamos eval porque el comando se construyó dinámicamente
+total_files=$(eval "$count_cmd")
+processed_files=0
+
+if [ "$total_files" -eq 0 ]; then
+    echo "❌ No se encontraron archivos en el origen."
+    exit 0
+fi
+
+echo "Iniciando organización de $total_files archivos..."
 sleep 1
 
-# 3. Calcular total de archivos y definir el comando find
-# Si es absoluta (disco externo), no necesitamos excluir nada (-prune) porque find . no llegará allí.
-# Si es relativa, usamos -path en lugar de -name para evitar errores con barras.
-
-if [ "$is_absolute" -eq 1 ]; then
-    # Ruta absoluta: buscamos todo, ya que el destino está fuera
-    total_files=$(find . -type f | wc -l)
-    find_cmd="find . -type f -print0"
-else
-    # Ruta relativa: hay que excluir la carpeta de destino para no hacer bucle
-    # Usamos -path para permitir subcarpetas (ej: ./backup/fotos)
-    total_files=$(find . -path "$output_dir" -prune -o -type f | wc -l)
-    find_cmd="find . -path $output_dir -prune -o -type f -print0"
-fi
-
-processed_files=0
-echo "Iniciando organización de $total_files archivos..."
-
-# 4. Ejecutar el bucle con el comando dinámico
+# Bucle principal
 eval "$find_cmd" | while IFS= read -r -d '' file; do
     
+    # Obtener fecha
     timestamp=$(stat -c %y "$file")
     year=${timestamp:0:4}
     month=${timestamp:5:2}
@@ -56,29 +92,26 @@ eval "$find_cmd" | while IFS= read -r -d '' file; do
     base_file=$(basename "$file")
     extension="${base_file##*.}"
 
-    # Construye la ruta de destino
-    target_path="$output_dir/$year/$month"
-    
+    # Construir ruta destino basada en la ruta absoluta de salida
+    target_path="$abs_dest/$year/$month"
     mkdir -p "$target_path"
 
+    # Lógica de renombrado (evitar colisiones)
     counter=0
     counter_formatted=$(printf "%05d" $counter)
-
+    
     new_filename="${year}_${month}_${day}_${hour}_${minute}_${counter_formatted}"
     
+    # Manejo de extensión
     if [ -n "$extension" ] && [ "$extension" != "$base_file" ]; then
         new_filename="$new_filename.$extension"
-    else
-        new_filename="$new_filename" 
     fi
     
     full_new_path="$target_path/$new_filename"
 
-    # Evita sobrescribir
     while [ -e "$full_new_path" ]; do
         counter=$((counter+1))
         counter_formatted=$(printf "%05d" $counter)
-        
         new_filename="${year}_${month}_${day}_${hour}_${minute}_${counter_formatted}"
         if [ -n "$extension" ] && [ "$extension" != "$base_file" ]; then
             new_filename="$new_filename.$extension"
@@ -86,19 +119,21 @@ eval "$find_cmd" | while IFS= read -r -d '' file; do
         full_new_path="$target_path/$new_filename"
     done
 
-    # Copia el archivo
+    # Copiar archivo
     cp -p "$file" "$full_new_path"
 
-    # --- Barra de Progreso ---
+    # Barra de progreso
     processed_files=$((processed_files+1))
-    
-    if [ "$total_files" -gt 0 ]; then
-        progress=$((processed_files * 100 / total_files))
-        num_hashes=$((progress / 2))
-        bar=$(printf "%0.s#" $(seq 1 $num_hashes))
-        printf "\rProgreso: [%-50s] %d%% (%d/%d)" "$bar" "$progress" "$processed_files" "$total_files"
-    fi
+    progress=$((processed_files * 100 / total_files))
+    num_hashes=$((progress / 2))
+    bar=$(printf "%0.s#" $(seq 1 $num_hashes))
+    printf "\rProgreso: [%-50s] %d%% (%d/%d)" "$bar" "$progress" "$processed_files" "$total_files"
 
 done
 
-printf "\n\n¡Proceso finalizado! Tus archivos están en: %s\n\n" "$output_dir"
+echo ""
+echo ""
+echo "======================================================="
+echo "   ✅ ¡PROCESO COMPLETADO CON ÉXITO!"
+echo "   Los archivos han sido copiados a: $abs_dest"
+echo "======================================================="
