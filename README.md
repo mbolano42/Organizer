@@ -48,29 +48,42 @@ El script detecta automáticamente si estás intentando guardar los archivos ord
 
 ```bash
 chmod +x organizador_pro.sh
-📖 Guía de Uso
+````
+
+-----
+
+## 📖 Guía de Uso
+
 Ejecuta el script. No necesitas pasar parámetros, el asistente te guiará.
 
-Bash
-
+```bash
 ./organizador_pro.sh
-Paso a Paso
-Solicitud de Origen: El script te pedirá la ruta de la carpeta desordenada.
+```
 
-💡 Tip: Puedes arrastrar la carpeta desde tu escritorio a la terminal para que se escriba la ruta automáticamente.
+### Paso a Paso
 
-Solicitud de Destino: Indica dónde quieres crear la nueva estructura organizada.
+1.  **Solicitud de Origen:**
+    El script te pedirá la ruta de la carpeta desordenada.
 
-Procesamiento: Verás una barra de progreso indicando el avance de la copia.
+    > 💡 **Tip:** Puedes arrastrar la carpeta desde tu escritorio a la terminal para que se escriba la ruta automáticamente.
 
-🌲 Ejemplo Visual: Antes y Después
+2.  **Solicitud de Destino:**
+    Indica dónde quieres crear la nueva estructura organizada.
+
+3.  **Procesamiento:**
+    Verás una barra de progreso indicando el avance de la copia.
+
+-----
+
+## 🌲 Ejemplo Visual: Antes y Después
+
 Imagina que quieres organizar las fotos de un iPhone que has copiado a tu PC.
 
-❌ Situación Inicial (El Caos)
-Ruta Origen: /media/usb/Backup_Iphone
+### ❌ Situación Inicial (El Caos)
 
-Plaintext
+Ruta Origen: `/media/usb/Backup_Iphone`
 
+```text
 /media/usb/Backup_Iphone
 ├── 100APPLE
 │   ├── IMG_0001.JPG
@@ -80,11 +93,13 @@ Plaintext
 │   └── FOTO_WHATSAPP_2023.JPEG
 └── DOCUMENTOS
     └── factura.pdf
-✅ Resultado Final (El Orden)
-Ruta Destino: /home/usuario/Fotos_Ordenadas
+```
 
-Plaintext
+### ✅ Resultado Final (El Orden)
 
+Ruta Destino: `/home/usuario/Fotos_Ordenadas`
+
+```text
 /home/usuario/Fotos_Ordenadas
 ├── 2022
 │   └── 05
@@ -97,29 +112,32 @@ Plaintext
 └── 2024
     └── 01
         └── 2024_01_15_10_00_00_00000.pdf
-⚙️ Detalles Técnicos (Cómo funciona por dentro)
+```
+
+-----
+
+## ⚙️ Detalles Técnicos (Cómo funciona por dentro)
+
 Para los usuarios avanzados, esta es la lógica que sigue el script:
 
-Resolución de Rutas: Convierte tanto el origen como el destino a rutas absolutas. Esto es crítico para determinar la relación entre ambas carpetas.
+1.  **Resolución de Rutas:** Convierte tanto el origen como el destino a **rutas absolutas**. Esto es crítico para determinar la relación entre ambas carpetas.
+2.  **Detección de Jerarquía:**
+      * Si `Destino` empieza por la cadena de texto de `Origen`, significa que el destino es una subcarpeta.
+      * En este caso, se construye un comando `find` con la opción `-prune` para ignorar esa subcarpeta específica durante la búsqueda.
+3.  **Extracción de Fecha (`stat`):**
+      * Se extrae el `mtime` (Modification Time). Formato: `YYYY-MM-DD HH:MM:SS`.
+4.  **Copia Segura:**
+      * Se usa `cp -p origen destino`. La flag `-p` preserva: `Mode`, `Ownership`, `Timestamps`.
 
-Detección de Jerarquía:
+-----
 
-Si Destino empieza por la cadena de texto de Origen, significa que el destino es una subcarpeta.
+## ⚠️ Advertencias y Consejos
 
-En este caso, se construye un comando find con la opción -prune para ignorar esa subcarpeta específica durante la búsqueda.
+  * **Espacio en Disco:** Este script **COPIA** los archivos, no los mueve. Asegúrate de tener suficiente espacio libre en el destino. Una vez verifiques que todo está correcto, puedes borrar el origen manualmente.
+  * **Archivos Ocultos:** Por defecto, el script busca archivos normales (`-type f`). No procesa archivos ocultos del sistema (que empiezan por `.`) a menos que se modifique el comando `find`.
 
-Extracción de Fecha (stat):
+-----
 
-Se extrae el mtime (Modification Time). Formato: YYYY-MM-DD HH:MM:SS.
+## 📄 Licencia
 
-Copia Segura:
-
-Se usa cp -p origen destino. La flag -p preserva: Mode, Ownership, Timestamps.
-
-⚠️ Advertencias y Consejos
-Espacio en Disco: Este script COPIA los archivos, no los mueve. Asegúrate de tener suficiente espacio libre en el destino. Una vez verifiques que todo está correcto, puedes borrar el origen manualmente.
-
-Archivos Ocultos: Por defecto, el script busca archivos normales (-type f). No procesa archivos ocultos del sistema (que empiezan por .) a menos que se modifique el comando find.
-
-📄 Licencia
 Este proyecto se distribuye bajo la licencia MIT. Eres libre de usarlo, modificarlo y distribuirlo.
