@@ -1,94 +1,125 @@
-# 📸 Organizador de Fotos de iPhone (Bash Script)
+# 📂 Organizador Inteligente de Archivos (Bash Script)
 
-Un script de Bash diseñado para poner orden en el caos de la galería de tu iPhone. Este script recorre todas las subcarpetas extrañas de Apple (como `100APPLE`, `101APPLE`, `CLOUD`...) y unifica todas tus fotos y vídeos en una estructura limpia y ordenada por fecha.
+![Bash](https://img.shields.io/badge/Language-Bash-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)
+![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL-blue?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
-Es ideal para realizar copias de seguridad de tu iPhone a un disco duro externo o a tu PC Linux/Mac.
+Un script de automatización avanzado diseñado para organizar masivamente fotografías, vídeos y documentos. Transforma directorios caóticos (como las carpetas `DCIM` de un iPhone o copias de seguridad antiguas) en una estructura cronológica limpia y estandarizada, **preservando siempre la integridad y metadatos de los archivos originales**.
 
-## 🚀 Características
+---
 
-* **Adiós al caos del DCIM:** Ignora la estructura de carpetas aleatoria del iPhone (`100APPLE`, etc.) y lo centra todo en la fecha real de la foto.
-* **Soporte de Formatos Apple:** Funciona perfectamente con `.HEIC`, `.JPG`, `.MOV`, `.PNG` y `.AAE`.
-* **Renombrado Cronológico:** Transforma nombres genéricos como `IMG_4821.HEIC` a algo útil como `2023_12_24_10_00_00_00000.HEIC`.
-* **Gestión de Ráfagas y Live Photos:** Si tienes varias fotos tomadas en el mismo segundo (o un Live Photo compuesto por imagen + vídeo), el script usa un contador inteligente para no sobrescribir nada y mantener ambos archivos.
-* **Copia de Seguridad Segura:** Utiliza `cp -p` (copia preservando metadatos). **Tus archivos originales en el iPhone no se tocan ni se borran**, garantizando que no pierdas nada si hay un error de conexión.
+## 🚀 Características Principales
+
+### 1. Interfaz Interactiva "Origen vs. Destino"
+A diferencia de scripts simples que solo ordenan la carpeta actual, este script solicita explícitamente:
+* **Origen:** ¿Dónde está el desorden? (Puede ser un USB, disco externo, carpeta local...).
+* **Destino:** ¿Dónde quieres guardar los archivos ordenados?
+
+### 2. Preservación Total de Metadatos (`cp -p`)
+El script utiliza una copia en modo *preserve*. Esto garantiza que:
+* ✅ La **Fecha de Modificación** original se mantiene intacta.
+* ✅ Los permisos y el propietario del archivo se respetan.
+* ✅ Tus fotos seguirán ordenándose cronológicamente en cualquier visor.
+
+### 3. Renombrado Cronológico Inteligente
+Renombra los archivos basándose en su fecha real de creación, no en su nombre original.
+* De: `IMG_9021.HEIC` (Nombre genérico)
+* A: `2023_12_24_18_30_05_00000.HEIC` (Información útil)
+
+### 4. Gestión de Colisiones (Anti-Duplicados)
+Si tienes varias fotos tomadas en el mismo segundo (o ráfagas), el script **nunca sobrescribe**. Añade un contador incremental (`_00000`, `_00001`) para guardar ambas versiones.
+
+### 5. Seguridad Anti-Bucle
+El script detecta automáticamente si estás intentando guardar los archivos ordenados *dentro* de la misma carpeta de origen. Si es así, excluye dinámicamente la carpeta de destino del escaneo para evitar bucles infinitos.
+
+---
+
+## 📋 Requisitos
+
+* **Sistema Operativo:** Linux (Ubuntu, Debian, Fedora...), macOS, o Windows a través de WSL (Windows Subsystem for Linux).
+* **Dependencias:** Ninguna. Utiliza herramientas nativas de Bash (`find`, `stat`, `cp`, `mkdir`).
+
+---
 
 ## 🛠️ Instalación
 
-1.  Guarda el código del script en un archivo, por ejemplo `organizar_iphone.sh`.
-2.  Dale permisos de ejecución:
+1.  Descarga el archivo `organizador_pro.sh` o crea uno nuevo con el código.
+2.  Otorga permisos de ejecución desde la terminal:
 
 ```bash
-chmod +x organizar_iphone.sh
-````
+chmod +x organizador_pro.sh
+📖 Guía de Uso
+Ejecuta el script. No necesitas pasar parámetros, el asistente te guiará.
 
-## 📖 Uso Recomendado con iPhone
+Bash
 
-1.  **Conecta tu iPhone** al ordenador y asegúrate de que está montado y puedes ver los archivos.
-2.  Abre la terminal y entra en la carpeta `DCIM` de tu iPhone (o donde tengas todas las carpetas mezcladas).
-3.  Ejecuta el script:
+./organizador_pro.sh
+Paso a Paso
+Solicitud de Origen: El script te pedirá la ruta de la carpeta desordenada.
 
-<!-- end list -->
+💡 Tip: Puedes arrastrar la carpeta desde tu escritorio a la terminal para que se escriba la ruta automáticamente.
 
-```bash
-/ruta/a/tu/script/organizar_iphone.sh
-```
+Solicitud de Destino: Indica dónde quieres crear la nueva estructura organizada.
 
-4.  **Selecciona el destino:**
-      * Cuando el script te pregunte, te recomendamos usar una **ruta absoluta** a tu disco duro o carpeta de Backup en tu PC.
-      * *Ejemplo:* `/home/usuario/Imágenes/Backup_iPhone_2024`
+Procesamiento: Verás una barra de progreso indicando el avance de la copia.
 
-## 📂 Ejemplo Visual: Antes y Después
+🌲 Ejemplo Visual: Antes y Después
+Imagina que quieres organizar las fotos de un iPhone que has copiado a tu PC.
 
-El objetivo es transformar el desorden típico de iOS en una estructura archivada perfecta.
+❌ Situación Inicial (El Caos)
+Ruta Origen: /media/usb/Backup_Iphone
 
-### ❌ Antes (Estructura típica DCIM de iPhone)
+Plaintext
 
-```text
-.
+/media/usb/Backup_Iphone
 ├── 100APPLE
-│   ├── IMG_0001.HEIC
-│   ├── IMG_0002.MOV
-│   └── IMG_0003.JPG
+│   ├── IMG_0001.JPG
+│   └── IMG_0002.MOV
 ├── 101APPLE
-│   ├── IMG_0540.HEIC
-│   ├── IMG_E0540.HEIC  (Edición de la anterior)
-│   └── IMG_9998.PNG
-└── 102APPLE
-    ├── A0982312.MOV
-    └── IMG_0001.HEIC   (Nombre repetido en otra carpeta)
-```
+│   ├── IMG_0001.JPG  (¡Nombre duplicado en otra carpeta!)
+│   └── FOTO_WHATSAPP_2023.JPEG
+└── DOCUMENTOS
+    └── factura.pdf
+✅ Resultado Final (El Orden)
+Ruta Destino: /home/usuario/Fotos_Ordenadas
 
-### ✅ Después (Tu carpeta de Destino)
+Plaintext
 
-El script detecta la fecha real de creación y renombra todo para evitar conflictos, incluso si los nombres originales (`IMG_0001`) estaban repetidos.
-
-```text
-/home/usuario/Backup_iPhone_2024
+/home/usuario/Fotos_Ordenadas
 ├── 2022
-│   └── 08
-│       ├── 2022_08_15_14_30_22_00000.HEIC
-│       └── 2022_08_15_14_30_22_00001.MOV
-└── 2023
-    ├── 12
-    │   ├── 2023_12_24_23_59_10_00000.HEIC   (La foto original)
-    │   └── 2023_12_24_23_59_50_00000.HEIC   (La edición)
+│   └── 05
+│       ├── 2022_05_10_14_00_00_00000.JPG
+│       └── 2022_05_10_14_00_00_00001.MOV
+├── 2023
+│   └── 11
+│       ├── 2023_11_20_09_30_00_00000.JPG  (La primera IMG_0001)
+│       └── 2023_11_20_09_30_00_00001.JPG  (La segunda IMG_0001, sin colisión)
+└── 2024
     └── 01
-        └── 2023_01_01_00_00_01_00000.PNG
-```
+        └── 2024_01_15_10_00_00_00000.pdf
+⚙️ Detalles Técnicos (Cómo funciona por dentro)
+Para los usuarios avanzados, esta es la lógica que sigue el script:
 
-## 🔧 Detalles Técnicos
+Resolución de Rutas: Convierte tanto el origen como el destino a rutas absolutas. Esto es crítico para determinar la relación entre ambas carpetas.
 
-  * **Detección de Archivos:** El script busca recursivamente en todas las subcarpetas (`find . -type f`), por lo que no importa si tienes 5 o 50 carpetas dentro de `DCIM`.
-  * **Fecha de Modificación:** Se basa en la fecha de modificación del archivo (`stat -c %y`). En el caso de iPhone montado en Linux/Mac, esto suele corresponderse fielmente con la fecha de captura.
-  * **Manejo de Rutas:** Si indicas una ruta de destino externa (ej. un disco duro USB), el script optimiza la búsqueda para ir más rápido y no verificar exclusiones innecesarias.
+Detección de Jerarquía:
 
-## ⚠️ Nota sobre el espacio
+Si Destino empieza por la cadena de texto de Origen, significa que el destino es una subcarpeta.
 
-Este proceso **DUPLICA** los archivos (del iPhone al PC/Disco).
+En este caso, se construye un comando find con la opción -prune para ignorar esa subcarpeta específica durante la búsqueda.
 
-1.  Asegúrate de tener espacio suficiente en el destino.
-2.  Una vez verifiques que la carpeta `Backup_iPhone_2024` tiene todas tus fotos ordenadas y correctas, ya puedes proceder a borrar las fotos del iPhone manualmente si deseas liberar espacio.
+Extracción de Fecha (stat):
 
------
+Se extrae el mtime (Modification Time). Formato: YYYY-MM-DD HH:MM:SS.
 
-*Script optimizado para fototecas grandes y desordenadas.*
+Copia Segura:
+
+Se usa cp -p origen destino. La flag -p preserva: Mode, Ownership, Timestamps.
+
+⚠️ Advertencias y Consejos
+Espacio en Disco: Este script COPIA los archivos, no los mueve. Asegúrate de tener suficiente espacio libre en el destino. Una vez verifiques que todo está correcto, puedes borrar el origen manualmente.
+
+Archivos Ocultos: Por defecto, el script busca archivos normales (-type f). No procesa archivos ocultos del sistema (que empiezan por .) a menos que se modifique el comando find.
+
+📄 Licencia
+Este proyecto se distribuye bajo la licencia MIT. Eres libre de usarlo, modificarlo y distribuirlo.
