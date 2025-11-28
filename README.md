@@ -96,5 +96,3 @@ Este script **COPIA** los archivos, no los mueve.
 -----
 
 *Script desarrollado para automatización de backups y organización de medios.*
-
-```
