@@ -1,143 +1,110 @@
-# 📂 Organizador Inteligente de Archivos (Bash Script)
+# 📂 Organizador Maestro de Archivos (Bash Script)
 
 ![Bash](https://img.shields.io/badge/Language-Bash-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)
-![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL-blue?style=flat-square)
+![System](https://img.shields.io/badge/System-Linux%20%7C%20macOS%20%7C%20WSL-blue?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)
 
-Un script de automatización avanzado diseñado para organizar masivamente fotografías, vídeos y documentos. Transforma directorios caóticos (como las carpetas `DCIM` de un iPhone o copias de seguridad antiguas) en una estructura cronológica limpia y estandarizada, **preservando siempre la integridad y metadatos de los archivos originales**.
+Un script de automatización de alto nivel diseñado para poner orden en el caos digital. Escanea cualquier origen, clasifica los archivos por **Categoría**, **Extensión** y **Fecha**, y genera una copia exacta y organizada preservando todos los metadatos originales.
+
+## 🚀 Características Premium
+
+### 1. Clasificación Profunda (Deep Sorting)
+El script no solo ordena por fecha. Crea una jerarquía lógica inteligente:
+* **Nivel 1:** Categoría (Imágenes, Documentos, Vídeos, Certificados...).
+* **Nivel 2:** Extensión Específica (JPG, PNG, PDF, DOCX...).
+* **Nivel 3:** Cronología (Año / Mes).
+
+### 2. Seguridad y Auditoría
+* **Sistema de Logs:** Genera dos archivos al finalizar (`registro_exito.csv` y `registro_errores.txt`) para que puedas auditar cada byte copiado.
+* **Preservación de Metadatos:** Utiliza `cp -p` para mantener intactas la fecha de modificación original, permisos y propietario.
+* **Gestión de Colisiones:** Nunca sobrescribe. Si dos archivos se llaman igual y tienen la misma fecha, usa contadores inteligentes (`_00001`).
+
+### 3. Interfaz Robusta
+* **Selección de Origen/Destino:** Te solicita explícitamente dónde buscar y dónde guardar.
+* **Protección Anti-Bucle:** Detecta si intentas guardar la copia dentro de la carpeta original y aísla el destino para evitar bucles infinitos.
+* **Barra de Progreso Visual:** Indicador en tiempo real limpio y estable.
 
 ---
 
-## 🚀 Características Principales
+## 📋 Categorías Soportadas
 
-### 1. Interfaz Interactiva "Origen vs. Destino"
-A diferencia de scripts simples que solo ordenan la carpeta actual, este script solicita explícitamente:
-* **Origen:** ¿Dónde está el desorden? (Puede ser un USB, disco externo, carpeta local...).
-* **Destino:** ¿Dónde quieres guardar los archivos ordenados?
+El script reconoce automáticamente cientos de extensiones y las agrupa:
 
-### 2. Preservación Total de Metadatos (`cp -p`)
-El script utiliza una copia en modo *preserve*. Esto garantiza que:
-* ✅ La **Fecha de Modificación** original se mantiene intacta.
-* ✅ Los permisos y el propietario del archivo se respetan.
-* ✅ Tus fotos seguirán ordenándose cronológicamente en cualquier visor.
-
-### 3. Renombrado Cronológico Inteligente
-Renombra los archivos basándose en su fecha real de creación, no en su nombre original.
-* De: `IMG_9021.HEIC` (Nombre genérico)
-* A: `2023_12_24_18_30_05_00000.HEIC` (Información útil)
-
-### 4. Gestión de Colisiones (Anti-Duplicados)
-Si tienes varias fotos tomadas en el mismo segundo (o ráfagas), el script **nunca sobrescribe**. Añade un contador incremental (`_00000`, `_00001`) para guardar ambas versiones.
-
-### 5. Seguridad Anti-Bucle
-El script detecta automáticamente si estás intentando guardar los archivos ordenados *dentro* de la misma carpeta de origen. Si es así, excluye dinámicamente la carpeta de destino del escaneo para evitar bucles infinitos.
+| Categoría | Ejemplos de Extensiones |
+| :--- | :--- |
+| **📄 Documentos** | pdf, docx, xlsx, pptx, txt, md, pages, numbers... |
+| **📷 Imágenes** | jpg, png, heic, raw, neff, cr2, svg, psd, ai... |
+| **🎥 Vídeos** | mp4, mov, avi, mkv, webm, 3gp... |
+| **🎵 Sonidos** | mp3, wav, flac, aac, ogg, mid... |
+| **📦 Comprimidos** | zip, rar, 7z, tar.gz, iso, dmg... |
+| **🔐 Certificados** | p12, pfx, pem, crt, key... |
+| **🗂️ Varios** | Cualquier otro archivo no reconocido. |
 
 ---
 
-## 📋 Requisitos
+## 🛠️ Instalación y Uso
 
-* **Sistema Operativo:** Linux (Ubuntu, Debian, Fedora...), macOS, o Windows a través de WSL (Windows Subsystem for Linux).
-* **Dependencias:** Ninguna. Utiliza herramientas nativas de Bash (`find`, `stat`, `cp`, `mkdir`).
+1.  **Descarga** el script (ej. `organizador_maestro.sh`).
+2.  **Dale permisos** de ejecución:
+    ```bash
+    chmod +x organizador_maestro.sh
+    ```
+3.  **Ejecuta**:
+    ```bash
+    ./organizador_maestro.sh
+    ```
+4.  **Sigue las instrucciones en pantalla:**
+    * Introduce la ruta de Origen (puedes arrastrar la carpeta a la terminal).
+    * Introduce la ruta de Destino.
 
 ---
 
-## 🛠️ Instalación
+## 🌲 Ejemplo de Estructura Final
 
-1.  Descarga el archivo `organizador_pro.sh` o crea uno nuevo con el código.
-2.  Otorga permisos de ejecución desde la terminal:
+Así se verán tus archivos después de ejecutar el script:
 
-```bash
-chmod +x organizador_pro.sh
+```text
+/Mi_Disco_Duro/Archivos_Organizados
+├── Documentos
+│   ├── PDF
+│   │   └── 2023
+│   │       └── 05
+│   │           └── 2023_05_12_factura.pdf
+│   └── DOCX
+│       └── 2023 ...
+├── Imágenes
+│   ├── HEIC
+│   │   └── 2022
+│   │       └── 08
+│   │           └── 2022_08_15_vacaciones.heic
+│   └── JPG
+│       └── ...
+└── Vídeos
+    └── MP4
+        └── 2024
+            └── 01
+                └── 2024_01_01_fiesta.mp4
 ````
 
 -----
 
-## 📖 Guía de Uso
+## 🔍 Auditoría de Logs
 
-Ejecuta el script. No necesitas pasar parámetros, el asistente te guiará.
+Al finalizar, revisa la carpeta de destino:
 
-```bash
-./organizador_pro.sh
-```
-
-### Paso a Paso
-
-1.  **Solicitud de Origen:**
-    El script te pedirá la ruta de la carpeta desordenada.
-
-    > 💡 **Tip:** Puedes arrastrar la carpeta desde tu escritorio a la terminal para que se escriba la ruta automáticamente.
-
-2.  **Solicitud de Destino:**
-    Indica dónde quieres crear la nueva estructura organizada.
-
-3.  **Procesamiento:**
-    Verás una barra de progreso indicando el avance de la copia.
+  * **`registro_exito.csv`**: Un listado detallado (abrible en Excel) con:
+      * Ruta Original -\> Ruta Nueva -\> Fecha
+  * **`registro_errores.txt`**: Si algún archivo falló (por permisos o corrupción), aparecerá aquí. Si este archivo está vacío (o solo tiene la cabecera), **la copia fue perfecta**.
 
 -----
 
-## 🌲 Ejemplo Visual: Antes y Después
+## ⚠️ Nota Importante
 
-Imagina que quieres organizar las fotos de un iPhone que has copiado a tu PC.
+Este script **COPIA** los archivos.
 
-### ❌ Situación Inicial (El Caos)
-
-Ruta Origen: `/media/usb/Backup_Iphone`
-
-```text
-/media/usb/Backup_Iphone
-├── 100APPLE
-│   ├── IMG_0001.JPG
-│   └── IMG_0002.MOV
-├── 101APPLE
-│   ├── IMG_0001.JPG  (¡Nombre duplicado en otra carpeta!)
-│   └── FOTO_WHATSAPP_2023.JPEG
-└── DOCUMENTOS
-    └── factura.pdf
-```
-
-### ✅ Resultado Final (El Orden)
-
-Ruta Destino: `/home/usuario/Fotos_Ordenadas`
-
-```text
-/home/usuario/Fotos_Ordenadas
-├── 2022
-│   └── 05
-│       ├── 2022_05_10_14_00_00_00000.JPG
-│       └── 2022_05_10_14_00_00_00001.MOV
-├── 2023
-│   └── 11
-│       ├── 2023_11_20_09_30_00_00000.JPG  (La primera IMG_0001)
-│       └── 2023_11_20_09_30_00_00001.JPG  (La segunda IMG_0001, sin colisión)
-└── 2024
-    └── 01
-        └── 2024_01_15_10_00_00_00000.pdf
-```
+  * **Ventaja:** Tus archivos originales permanecen 100% seguros e intactos.
+  * **Requisito:** Asegúrate de tener espacio suficiente en el disco de destino para duplicar la información. Una vez verifiques los logs, puedes borrar el origen manualmente.
 
 -----
 
-## ⚙️ Detalles Técnicos (Cómo funciona por dentro)
-
-Para los usuarios avanzados, esta es la lógica que sigue el script:
-
-1.  **Resolución de Rutas:** Convierte tanto el origen como el destino a **rutas absolutas**. Esto es crítico para determinar la relación entre ambas carpetas.
-2.  **Detección de Jerarquía:**
-      * Si `Destino` empieza por la cadena de texto de `Origen`, significa que el destino es una subcarpeta.
-      * En este caso, se construye un comando `find` con la opción `-prune` para ignorar esa subcarpeta específica durante la búsqueda.
-3.  **Extracción de Fecha (`stat`):**
-      * Se extrae el `mtime` (Modification Time). Formato: `YYYY-MM-DD HH:MM:SS`.
-4.  **Copia Segura:**
-      * Se usa `cp -p origen destino`. La flag `-p` preserva: `Mode`, `Ownership`, `Timestamps`.
-
------
-
-## ⚠️ Advertencias y Consejos
-
-  * **Espacio en Disco:** Este script **COPIA** los archivos, no los mueve. Asegúrate de tener suficiente espacio libre en el destino. Una vez verifiques que todo está correcto, puedes borrar el origen manualmente.
-  * **Archivos Ocultos:** Por defecto, el script busca archivos normales (`-type f`). No procesa archivos ocultos del sistema (que empiezan por `.`) a menos que se modifique el comando `find`.
-
------
-
-## 📄 Licencia
-
-Este proyecto se distribuye bajo la licencia MIT. Eres libre de usarlo, modificarlo y distribuirlo.
+*Desarrollado para máxima eficiencia y tranquilidad digital.*
