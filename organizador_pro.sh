@@ -97,31 +97,31 @@ eval "$find_cmd" | while IFS= read -r -d '' file; do
         category_folder="Varios"
     else
         case "$ext_lower" in
-            # Documentos
-            pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf|odt|ods|odp|csv|md|epub|pages|numbers|key)
+            # Documentos:
+            log|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|rtf|odt|ods|odp|csv|md|epub|pages|numbers|key)
                 category_folder="Documentos"
                 ;;
-            # Imágenes
+            # Imágenes:
             jpg|jpeg|png|gif|bmp|tiff|tif|heic|heif|raw|cr2|nef|arw|svg|webp|ico|psd|ai)
                 category_folder="Imágenes"
                 ;;
-            # Vídeos
+            # Vídeos:
             mp4|mov|avi|mkv|flv|wmv|webm|m4v|3gp|mpg|mpeg|ts|mts)
                 category_folder="Vídeos"
                 ;;
-            # Sonidos
+            # Sonidos:
             mp3|wav|flac|aac|ogg|wma|m4a|aiff|alac|mid)
                 category_folder="Sonidos"
                 ;;
-            # Archivos Comprimidos
+            # Archivos Comprimidos:
             zip|rar|7z|tar|gz|tgz|bz2|xz|iso|dmg)
                 category_folder="Comprimidos"
                 ;;
-            # Certificados y Claves
+            # Certificados y Claves:
             p12|pfx|cer|crt|pem|key|der|p7b|crl)
                 category_folder="Certificados"
                 ;;
-            # Todo lo demás
+            # Todo lo demás:
             *)
                 category_folder="Varios"
                 ;;
